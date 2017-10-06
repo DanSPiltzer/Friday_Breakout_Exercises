@@ -1,0 +1,12 @@
+select C.CallID, C.CallDate as TheDate, MP.ProgramName as MarketingProgram, 1 as Calls, COUNT(DISTINCT iif(O.Completed = 'y', O.OrderID, NULL)) as Orders, O.HomeOwner, C.CallDirection, iif(O.GeoUnits > 0, 1, 0) as GreenAttachments, C.CallerID_Number, C.CallLength, C.DNIS
+FROM
+  ODS.EnergySavings.Calls C
+  left join ODS.EnergySavings.Orders O on O.CallID = C.CallID
+  left join ODS.common.Corporate_MarketingCodes MC on MC.MarketingCodeID = C.MarketingCodeID
+  left join ODS.common.Corporate_MarketingPrograms MP on MP.MarketingProgramID = MC.MarketingProgramID
+  LEFT JOIN ODS.EnergySavings.Markets_Price_Codes PC on PC.PriceCodeID = O.PriceCodeID
+  left join ODS.EnergySavings.Products P on P.ProductID = PC.ProductID
+WHERE
+  C.CallDate between '2017-09-01' and '2017-09-30'
+
+group by C.CallID, C.CallDate, O.GeoUnits, MP.ProgramName, O.HomeOwner, C.CallDirection, C.DNIS, C.CallLength, C.CallerID_Number
