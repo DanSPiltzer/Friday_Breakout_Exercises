@@ -1,0 +1,74 @@
+---
+title: "Month 1 Week 2 Practice Answer"
+date: "10/6/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+set.seed(50793)
+if(!require(pacman)){
+  install.packages("pacman")
+}
+p_load(tidyr)
+p_load(dplyr)
+p_load(ggplot2)
+p_load(tibble)
+p_load(readr)
+p_load(knitr)
+
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+library(tibble)
+library(readr)
+library(knitr)
+
+opts_knit$set(root.dir = "~/Documents/Homegrown/Friday_Breakout_Exercises/Month_1/Week_2")
+
+
+```
+
+## Bring in the data
+
+I use the function read_csv() to assign the data to a new variable called raw_data of type tibble.
+```{r read the csv, message=FALSE}
+raw_data <- read_csv("Month1_Week2_PracticeData.csv")
+```
+
+## Clean the Data
+Next I want to clean up the data.  I know all I'm interested in graphing is number of calls, orders, and green attachments based on the date so I will select to keep only those columns.  Next I notice that each row is an individual call but I want to look at my data by date so I **group_by()** TheDate.  Once my data is grouped by the date I want to find the sum of each event for that date so I use the  **summarise_all()** to do so, telling the function to use **sum()** as the aggregation function. Finally since I know that Orders, Calls, and GreenAttachments aren't features, I need to use gather to shrink my data set down to three columns.
+
+```{r cleaning data}
+clean_data <- raw_data %>% 
+  select(TheDate, Calls, Orders, GreenAttachments) %>%
+    group_by(TheDate) %>%
+      summarise_all(funs(sum)) %>%
+        gather("event", "value", Calls, Orders, GreenAttachments)
+```
+
+Now we should be ready to plot, right?  Well let me take one more quick ook at my data first:
+
+```{r last look}
+str(clean_data)
+```
+
+It appears TheDate is stored as a character data type and not a date.  Let's fix that:
+
+```{r fix the date}
+clean_data <- raw_data %>% 
+  select(TheDate, Calls, Orders, GreenAttachments) %>%
+    group_by(TheDate) %>%
+      summarise_all(funs(sum)) %>%
+        gather("event", "value", Calls, Orders, GreenAttachments) %>%
+          mutate(TheDate = as.Date(TheDate, format = "%m/%d/%y"))
+```
+
+## Graph the Data
+Now I'm ready to graph.
+
+```{r graph the data}
+ggplot(data = clean_data, aes(TheDate, value, color = event)) + geom_line()
+```
+
+
+And there we have it, what a nice looking graph.
