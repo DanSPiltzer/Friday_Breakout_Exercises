@@ -1,0 +1,52 @@
+---
+title: 'Getting and Cleaning Data: Week 3 Example -- EXERCISES'
+output:
+  html_document:
+    df_print: paged
+---
+
+## Reading in Data with rvdata
+Use the provided code to pull data from the rv_example_query.sql file using rvdata. (No need to change anything other than the path to your query file if you choose this route) 
+If your connection to rvdata is not working, read in the data from the rv_example_data.csv file. (Write your own code and skip the code provided in the chunk below)
+```{r}
+queryFile <- '~/Documents/dsc-homegrown/w3_breakout/rv_example_query.sql'
+atlasConn <- rvdata::getAtlasDatabaseConnection(company = 'VZ')
+dbData <- rvdata::pullDbData(queryFile = queryFile, dbType = 'MSSQL', conn = atlasConn)
+```
+
+This data contains marketing events (site visits) and orders. Each row is a marketing event. The rightmost columns specify whether the marketing event
+was the "last touch" a customer visited before ordering, the "first touch" a customer visited before ordering. Linear splits orders across all
+the events that led to it. For example, if a customer had 2 marketing events, the "Linear" column appears as 0.5 for each event (row). If a customer
+had 4 marketing events, the "Linear" column contains 0.25 for each event (row).
+
+The TotalTouchpoints column indicates how many marketing events are associated with the order (i.e. 2 visits, 4 visits, 1 visits).
+
+## Data Manipulation with dplyr
+1. Restrict to rows where TotalTouchpoints > 1 and OrderCompany is either 73 or 54 (Frontier or Verizon).
+2. Calculate the number of first touch, last touch, and linear orders associated with each EventType and Brand.
+
+First touch orders is defined as the sum of the FirstTouch column.
+Last touch orders is defined as the sum of the LastTouch column.
+Linear orders is defined as the sum of the Linear column. This could be non-integer number. 
+```{r}
+
+```
+## String manipulation
+1. Glimpse at the data to get an understanding of what you are starting with.
+```{r}
+
+```
+2. Use lubridate to change the order timestamps into a useable format.
+3. Create a column that identifies an RLSA event. RLSA events are defined as any row where the CampaignName contains the pattern 'RLSA'.
+4. Remove 'Control' and 'Experiment' words from the CampaignName (replace them with an empty string) in order to clean up this column.
+5. Calculate the number of RLSA events for each EventCompany (not OrderCompany)
+6. Bonus: For each EventCompany, calculate the number of unique CampaignNames once Control and Experiment are removed in step 4.
+```{r}
+
+```
+## Plotting
+Optional: Use the skills learned in week 2 to plot this data in ggplot.
+```{r}
+
+```
+
